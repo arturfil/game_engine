@@ -3,6 +3,7 @@
 #include "./Game.h"
 #include "../lib/glm/glm.hpp"
 #include "./EntityManager.h"
+#include "./Components/TransformComponent.h"
 
 EntityManager manager;
 SDL_Renderer* Game::renderer;
@@ -40,8 +41,16 @@ void Game::Initialize(int width, int height) {
     std::cerr << "Error rendering window." << std::endl;
     return;
   }
+
+  LoadLevel(0);
+
   isRunning = true;
   return;
+}
+
+void Game::LoadLevel(int levelNumber) {
+  Entity& newEntity(manager.AddEntity("projectile"));
+  newEntity.AddComponent<TransformComponent>(0, 0, 20, 20, 32, 32, 1);
 }
 
 void Game::ProcessInput() {
@@ -65,34 +74,23 @@ void Game::Update() {
   while (!SDL_TICKS_PASSED(SDL_GetTicks(), ticksLastFrame + FRAME_TARGET_TIME));
   // Delta time is the difference in ticks from last frame converted to seconds
   float deltaTime = (SDL_GetTicks() - ticksLastFrame) / 1000.0f;
-
   // Clamp deltaTime to a maximum value
   deltaTime = (deltaTime > 0.05f) ? 0.0f : deltaTime;
-
   // Sets the new ticks for the current frame to be used in the next pass
   ticksLastFrame = SDL_GetTicks();
-
   // use delta time to update the x & y objects
-  projectilePos = glm::vec2(
-    projectilePos.x + projectileVel.x * deltaTime, 
-    projectilePos.y + projectileVel.y * deltaTime
-  );
+  manager.Update(deltaTime);
 }
 
 void Game::Render() {
   SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
   SDL_RenderClear(renderer);
 
-  SDL_Rect projectile {
-    (int) projectilePos.x,
-    (int) projectilePos.y,
-    10,
-    10,
-  };
-
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-  SDL_RenderFillRect(renderer, &projectile);
-
+  if (manager.HasNoEntities()) {
+    return;
+  }
+  
+  manager.Render();
   SDL_RenderPresent(renderer);
 }
 
