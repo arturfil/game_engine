@@ -1,4 +1,4 @@
-# DEBUG=-Wfatal-errors
+DEBUG=-Wfatal-errors
 
 all: build run
 

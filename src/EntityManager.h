@@ -3,7 +3,7 @@
 
 #include "./Entity.h"
 #include "./Component.h"
-#include <iostream>
+#include "./Entity.h"
 #include <vector>
 
 class EntityManager {
@@ -13,12 +13,12 @@ class EntityManager {
     void ClearData();
     void Update(float deltaTime);
     void Render();
-    void ListAllEntities();
-    void ListAllComponents();
-    bool HasNoEntities();
-    Entity& AddEntity(std::string entityName);
+    void ListAllEntities() const;
+    bool HasNoEntities() const;
+    unsigned int GetEntityCount() const;
     std::vector<Entity*> GetEntities() const;
-    unsigned int GetEntityCount();
+    std::vector<Entity*> GetEntitiesByLayer(LayerType layer) const;
+    Entity& AddEntity(std::string entityName, LayerType layer);
 };
 
 #endif
