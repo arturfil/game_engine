@@ -3,7 +3,7 @@
 
 #include "./Entity.h"
 #include "./Component.h"
-#include "./Constants.h"
+#include "./Entity.h"
 #include <vector>
 
 class EntityManager {
@@ -19,7 +19,7 @@ class EntityManager {
     std::vector<Entity*> GetEntities() const;
     std::vector<Entity*> GetEntitiesByLayer(LayerType layer) const;
     Entity& AddEntity(std::string entityName, LayerType layer);
-    CollisionType CheckCollisions() const;
+    std::string CheckEntityCollisions(Entity& entity) const;
 };
 
-  #endif
+#endif

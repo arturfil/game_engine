@@ -23,18 +23,34 @@ void EntityManager::Render() {
   }
 }
 
+// void EntityManager::ListAllEntities() const {
+//   unsigned int i = 0;
+//   for (auto& entity: entities) {
+//     std::cout << "Entity[" << i << "]: " << entity -> name << std::endl;;
+//     entity -> ListAllComponents();
+//     i++
+//   }
+// }
+
+std::string EntityManager::CheckEntityCollisions(Entity& myEntity) const {
+  ColliderComponent* myCollider = myEntity.GetComponent<ColliderComponent>();
+  for (auto& entity: entities) {
+    if (entity -> name.compare(myEntity.name) != 0 && entity -> name.compare("Title0") != 0) { 
+      if (entity -> HasComponent<ColliderComponent>()) {
+        ColliderComponent* otherCollider = entity -> GetComponent<ColliderComponent>();
+        if (Collision::CheckRectangleCollision(myCollider -> collider, otherCollider -> collider)) {
+          return otherCollider -> colliderTag;
+        }
+      }
+    }
+  }
+  return std::string();
+}
+
 Entity& EntityManager::AddEntity(std::string entityName, LayerType layer) {
   Entity *entity = new Entity(*this, entityName, layer);
   entities.emplace_back(entity);
   return *entity;
-}
-
-bool EntityManager::HasNoEntities() const {
-  return entities.size() == 0;
-}
-
-unsigned int EntityManager::GetEntityCount() const {
-  return entities.size();
 }
 
 std::vector<Entity*> EntityManager::GetEntities() const {
@@ -51,40 +67,10 @@ std::vector<Entity*> EntityManager::GetEntitiesByLayer(LayerType layer) const {
   return selectedEntities;
 } 
 
-void EntityManager::ListAllEntities() const {
-  unsigned int i = 0;
-  for (auto& entity: entities) {
-    std::cout << "Entity[" << i << "]: " << entity -> name << std::endl;;
-    entity -> ListAllComponents();
-    i++;
-  }
-} 
-
-CollisionType EntityManager::CheckCollisions() const {
-  for (auto& thisEntity: entities) {
-    if (thisEntity -> HasComponent<ColliderComponent>()) {
-      ColliderComponent* thisCollider = thisEntity -> GetComponent<ColliderComponent>();
-      for (auto& thatEntity: entities) {
-        if (thisEntity -> name.compare(thatEntity -> name) != 0 && thatEntity -> HasComponent<ColliderComponent>()) {
-          ColliderComponent* thatCollider = thatEntity -> GetComponent<ColliderComponent>();
-          if (Collision::CheckRectangleCollision(thisCollider -> collider, thatCollider -> collider)) {
-            if (thisCollider -> colliderTag.compare("PLAYER") == 0 && thatCollider -> colliderTag.compare("ENEMY") == 0) {
-             return PLAYER_ENEMY_COLLISION; 
-            }
-            if (thisCollider -> colliderTag.compare("PLAYER") == 0 && thatCollider -> colliderTag.compare("PROJECTILE") == 0) {
-              return PLAYER_PROJECTILE_COLLISION;
-            }
-            if (thisCollider -> colliderTag.compare("ENEMY") == 0 && thatCollider -> colliderTag.compare("FRIENDLY_PROJECTILE") == 0) {
-              return ENEMY_PROJECTILE_COLLISION;
-            }
-            if (thisCollider -> colliderTag.compare("PLAYER") == 0 && thatCollider -> colliderTag.compare("LEVEL_COMPLETE") == 0) {
-              return PLAYER_LEVEL_COMPLETE_COLLISION;
-            }
-          }
-        }
-      }
-    }
-  }
-  return NO_COLLISION;
+bool EntityManager::HasNoEntities() const {
+  return entities.size() == 0;
 }
 
+unsigned int EntityManager::GetEntityCount() const {
+  return entities.size();
+}
